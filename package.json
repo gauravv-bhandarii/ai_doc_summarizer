@@ -1,0 +1,12 @@
+{
+  "name": "ai-doc-summarizer",
+  "version": "1.0.0",
+  "scripts": {
+    "backend": "cd backend && venv\\Scripts\\python.exe -m uvicorn main:app --reload",
+    "frontend": "cd frontend && npm start",
+    "dev": "concurrently 'npm run backend' 'npm run frontend'"
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
