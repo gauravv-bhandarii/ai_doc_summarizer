@@ -111,10 +111,15 @@ async def summarize(file: UploadFile = File(...)):
 
     # ✅ Load model only when needed
     if summarizer is None:
-        summarizer = pipeline(
-            "summarization",
-            model="facebook/bart-large-cnn"
-        )
+        try:
+            summarizer = pipeline(
+                "summarization",
+                model="facebook/bart-large-cnn"
+            )
+        except Exception as e:
+            # Log and return a clear error to the client
+            print(f"Model load error: {e}")
+            raise HTTPException(status_code=500, detail="Failed to load summarization model. Check server logs and internet connection.")
 
     text = extract_text(file, file.filename, max_chars=3000)
 
@@ -124,12 +129,16 @@ async def summarize(file: UploadFile = File(...)):
     if len(text_to_summarize) < 50:
         return {"summary": "Document is too short or could not extract readable text."}
 
-    result = summarizer(
-        text_to_summarize,
-        max_length=150,
-        min_length=50,
-        do_sample=False
-    )
+    try:
+        result = summarizer(
+            text_to_summarize,
+            max_length=150,
+            min_length=50,
+            do_sample=False
+        )
+    except Exception as e:
+        print(f"Summarization error: {e}")
+        raise HTTPException(status_code=500, detail="Summarization failed. See server logs for details.")
 
     return {"summary": result[0]["summary_text"]}
 
